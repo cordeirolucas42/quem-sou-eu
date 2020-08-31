@@ -1,0 +1,22 @@
+{
+  "name": "quem-sou-eu",
+  "version": "1.0.0",
+  "description": "jogo quem sou eu? online",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cordeirolucas42/quem-sou-eu.git"
+  },
+  "author": "Lucas Cordeiro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cordeirolucas42/quem-sou-eu/issues"
+  },
+  "homepage": "https://github.com/cordeirolucas42/quem-sou-eu#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
