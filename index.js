@@ -10,6 +10,6 @@ app.get("/",(req,res) => {
     res.render("home")
 })
 
-app.listen(port, () => {
+app.listen(process.env.PORT, () => {
     console.log("Listening at port: " + process.env.PORT)
 })
