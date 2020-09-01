@@ -9,6 +9,7 @@
 
 - For future implementations:
     - https://devcenter.heroku.com/articles/heroku-postgresql (database sql)
+    - https://www.lucidchart.com/pages/pt
     
 - To create a named app in heroku:
     heroku apps:create myapp
