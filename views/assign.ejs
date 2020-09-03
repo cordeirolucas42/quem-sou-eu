@@ -15,18 +15,15 @@
                 <div class="eight wide centered column">
                     <div class="ui attached blue message">
                         <h1 class="ui header">Quem Sou Eu?</h1>
-                        <p>Insira o código para entrar numa sala de jogo:</p>
+                        <p>Quem <%=matchPlayer.name%> vai ser?</p>
                     </div>
-                    <form action="/play" method="post" class="ui attached segment form">
+                    <form action="/assign" method="post" class="ui attached segment form">
                         <div class="field">
-                            <label for="gameCode">Código da Sala</label>
-                            <input type="text" name="gameCode" placeholder="Código de 4 letras">
-                        </div>
-                        <div class="field">
-                            <label for="gameCode">Nome</label>
-                            <input type="text" name="playerName" placeholder="Seu nome">
+                            <label for="matchIdentity">Identidade Secreta</label>
+                            <input type="text" name="matchIdentity" placeholder="Pablo Picasso">
                         </div>
                         <button class="ui blue button" type="submit">Jogar!</button>
+                        <input style="visibility:hidden" type="text" name="matchPlayer" value= <%= matchPlayer %> >
                     </form>
                 </div>
             </div>

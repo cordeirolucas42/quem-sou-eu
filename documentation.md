@@ -7,9 +7,15 @@
         - https://semantic-ui.com/usage/layout.html
         - https://semantic-ui.com/kitchen-sink.html
 
+- Extensions recomendations:
+    - Bracket Pair Colorizer 2
+    - GraphQL
+    - Prettier
+
 - For future implementations:
     - https://devcenter.heroku.com/articles/heroku-postgresql (database sql)
     - https://www.lucidchart.com/pages/pt
+    - https://reactjs.org/tutorial/tutorial.html
     
 - To create a named app in heroku:
     heroku apps:create myapp
