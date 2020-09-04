@@ -2,6 +2,7 @@
     - https://devcenter.heroku.com/articles/preparing-a-codebase-for-heroku-deployment
     - https://agilewarrior.wordpress.com/2014/05/16/how-to-create-a-named-app-in-heroku/
     - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+    - tutorialspoint.com/expressjs/expressjs_sessions.htm
     - Semantic UI
         - https://cdnjs.com/libraries/semantic-ui
         - https://semantic-ui.com/usage/layout.html

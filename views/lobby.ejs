@@ -15,23 +15,25 @@
                 <div class="eight wide centered column">
                     <div class="ui attached blue message">
                         <h1 class="ui header">Quem Sou Eu?</h1>
-                        <p>Aguardando todos os jogadores fazerem suas escolhas</p>
+                        <p><%= playerName %>, bem-vindo à sala <%= gameRoom.roomCode %></p>
                     </div>
                     <div class="ui middle aligned divided list">
                         <% for (var i in gameRoom.players){ %>
-                            <% if (gameRoom.players[i].identity !== ""){ %>
-                                <div class="item">
-                                    <img class="ui avatar image" src="https://semantic-ui.com/images/avatar/large/elliot.jpg">
-                                    <div class="content">
-                                        <p class="header">
-                                            <%= gameRoom.players[i].name %>
-                                        </p>
-                                    </div>
+                            <div class="item">
+                                <img class="ui avatar image" src="https://semantic-ui.com/images/avatar/large/elliot.jpg">
+                                <div class="content">
+                                    <p class="header">
+                                        <%= gameRoom.players[i].name %>
+                                    </p>
                                 </div>
-                            <% } %>
+                            </div>
                         <% } %>
                     </div>
-                    <a href="/assign" class="ui blue button">Jogar!</a>
+                    <a href="/play" class="ui blue button">Jogar!</a>
+                    <!-- temporary button to start game, should be in /new-game -->
+                    <form action="/start" method="post" class="ui inline form">
+                        <button class="ui green button" type="submit">Começar!</button>
+                    </form>
                 </div>
             </div>
         </div>
