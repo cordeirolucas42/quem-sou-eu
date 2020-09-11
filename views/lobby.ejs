@@ -19,6 +19,9 @@
             channel.bind('start-assign', function(data) {
                 window.location.href = '/start';
             });
+            channel.bind('new-player', function(data) {
+                window.location.href = '/play';
+            });
         </script>
     </head>
     <body style="background-color:white">

@@ -79,6 +79,7 @@ app.post("/play",(req,res) => {
             el.players.push({name: playerName, identity: ""})
             req.session.gameRoom = el
             req.session.roomIndex = index
+            pusher.trigger('my-channel', 'new-player', {newPlayer:true})
             console.log("redirect to lobby page thorugh get/play")
             res.redirect("/play")
         } //ELSE TO DEAL WITH WRONG CODES AND GAMES ALREADY STARTED
@@ -183,7 +184,6 @@ app.get("/turn", (req,res) => {
         res.render("turn",{yourTurn:false,name:name,identity:identity})
     }
 })
-
 
 app.post("/turn", (req,res) => {
     if (currentTurn === req.session.gameRoom.players.length - 1){
