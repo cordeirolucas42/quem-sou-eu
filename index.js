@@ -89,10 +89,14 @@ app.get("/play", (req,res) => {
             var playerName = req.session.playerName
             var gameRoom = req.session.gameRoom
             res.render("lobby",{playerName: playerName, gameRoom: gameRoom})
+            while (!req.session.gameRoom.isStarted){
+                req.session.gameRoom = gameRooms[req.session.roomIndex]
+            }
+            res.redirect("/start")
         }
     } else {
         res.redirect("/")
-    }    
+    }
 })
 
 //comes from form button in lobby.js, should be in other page
