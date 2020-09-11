@@ -22,6 +22,10 @@
             channel.bind('new-player', function(data) {
                 window.location.href = '/play';
             });
+            channel.bind('restart', function(data) {
+                document.body.innerHTML += '<form id="restart" action="/restart" method="post"><input type="hidden" name="roomCode" value='+ data.roomCode +'></form>';
+                document.getElementById("restart").submit();
+            });
         </script>
     </head>
     <body style="background-color:white">
@@ -47,11 +51,16 @@
                             </div>
                         <% } %>
                     </div>
-                    <a href="/play" class="ui blue button">Jogar!</a>
+                    <!-- <a href="/play" class="ui blue button">Jogar!</a> -->
                     <!-- temporary button to start game, should be in /new-game -->
-                    <form action="/start" method="post" class="ui inline form">
-                        <button class="ui green button" type="submit">Começar!</button>
-                    </form>
+                    <%if(VIP){%>
+                        <form action="/start" method="post" class="ui inline form">
+                            <button class="ui green button" type="submit">Começar!</button>
+                        </form>
+                        <form action="/restart" method="post" class="ui inline form">
+                            <button class="ui red button" type="submit">Reiniciar</button>
+                        </form>
+                    <%}%>
                 </div>
             </div>
         </div>

@@ -47,57 +47,72 @@ app.use(session({secret: "QUEMSOUEU"}))
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
-app.get("/new-game", (req,res) =>{
-    var newRoom = MakeID(4)
-    gameRooms.push(new GameRoom(newRoom))
-    res.send("Compartilhe esse código com os amigos: " + newRoom)
-})
+// app.get("/new-game", (req,res) =>{
+//     var newRoom = MakeID(4)
+//     gameRooms.push(new GameRoom(newRoom))
+//     res.send("Compartilhe esse código com os amigos: " + newRoom)
+// })
 
 app.get("/",(req,res) => {
-    // console.log(req.session)
-    if (justStarted){
-        req.session.destroy()
-        justStarted = false
-    } else if (req.session.gameRoom && req.session.playerName){
-        //check game flags to decide where to redirect
-        res.redirect("/play")
-    } else {
-        res.render("home")
-    }    
+    var newCode = MakeID(4)
+    res.render("home",{randomCode:newCode})
+    // if (justStarted){
+    //     req.session.destroy()
+    //     justStarted = false
+    // } else if (req.session.gameRoom && req.session.playerName){
+    //     //check game flags to decide where to redirect
+    //     res.redirect("/play")
+    // } else {
+    //     res.render("home")
+    // }    
 })
 
 //comes from form in home.ejs
 app.post("/play",(req,res) => {
-    // console.log(req.session)
     var playerName = req.body.playerName
     var gameCode = req.body.gameCode
     req.session.playerName = playerName
-    gameRooms.forEach((el, index, array) => {
-        if (el.roomCode === gameCode && !el.isStarted){
-            req.session.playerIndex = el.players.length
-            req.session.matchIndex = req.session.playerIndex + 1
-            el.players.push({name: playerName, identity: ""})
-            req.session.gameRoom = el
-            req.session.roomIndex = index
-            pusher.trigger('my-channel', 'new-player', {newPlayer:true})
-            console.log("redirect to lobby page thorugh get/play")
-            res.redirect("/play")
-        } //ELSE TO DEAL WITH WRONG CODES AND GAMES ALREADY STARTED
-    })
+    //CHECK IF ALREADY HAS SESSION TO DETROY AND CREATE AGAIN
+    if (req.body.button === "Criar Sala"){
+        req.session.roomIndex = gameRooms.length
+        gameRooms.push(new GameRoom(gameCode)) //NEED TO CHECK IF THERE IS ROOM WITH THE SAME NAME
+        req.session.gameRoom = gameRooms[req.session.roomIndex]
+        gameRooms[req.session.roomIndex].players.push({name: playerName, identity: ""})
+        req.session.playerIndex = 0
+        req.session.matchIndex = 1
+        req.session.VIP = true
+        console.log("created new room and redirect to lobby")
+        res.redirect("/play")
+    } else {
+        gameRooms.forEach((el, index, array) => {
+            if (el.roomCode === gameCode && !el.isStarted){
+                req.session.playerIndex = el.players.length
+                req.session.matchIndex = req.session.playerIndex + 1
+                el.players.push({name: playerName, identity: ""})
+                req.session.gameRoom = el
+                req.session.roomIndex = index
+                req.session.VIP = false
+                pusher.trigger('my-channel', 'new-player', {newPlayer:true})
+                console.log("access room and redirect to lobby")
+                res.redirect("/play")
+            } //ELSE TO DEAL WITH WRONG CODES AND GAMES ALREADY STARTED
+        })
+    }
 })
 
 //comes from post /play or from / if already entered a game room
 app.get("/play", (req,res) => {
     // console.log(req.session)
+    // console.log("get/play")
     if (req.session.gameRoom && req.session.playerName){
         req.session.gameRoom = gameRooms[req.session.roomIndex]
         if (req.session.gameRoom.isStarted){
             res.redirect("/start")
         } else {
+            // console.log("render lobby")
             var playerName = req.session.playerName
             var gameRoom = req.session.gameRoom
-            console.log("render lobby view")
-            res.render("lobby",{playerName: playerName, gameRoom: gameRoom})
+            res.render("lobby",{playerName: playerName, gameRoom: gameRoom, VIP: req.session.VIP})
         }
     } else {
         res.redirect("/")
@@ -127,7 +142,7 @@ app.get("/start", (req,res) => {
                     var matchPlayer = gameRoom.players[req.session.matchIndex]
                     req.session.matchPlayer = matchPlayer
                 }
-                res.render("assign",{matchPlayer: req.session.matchPlayer})
+                res.render("assign",{matchPlayer: req.session.matchPlayer, VIP: req.session.VIP})
             }
         } else {
             res.redirect("/play")
@@ -144,6 +159,7 @@ app.post("/assign", (req,res) => {
     gameRooms[req.session.roomIndex].players[req.session.matchIndex].identity = matchIdentity
     req.session.hasAssigned = true
     req.session.gameRoom = gameRooms[req.session.roomIndex]
+    pusher.trigger('my-channel', 'new-assign', {newAssign:true})
     res.redirect("/assign")
 })
 
@@ -163,7 +179,7 @@ app.get("/assign", (req,res) => {
             pusher.trigger('my-channel', 'start-game', {isStarted:true})
             res.redirect("/turn")
         } else {
-            res.render("waiting",{gameRoom: gameRoom})
+            res.render("waiting",{gameRoom: gameRoom, VIP: req.session.VIP})
         }
     } else {
         res.redirect("/start")
@@ -177,11 +193,11 @@ app.get("/turn", (req,res) => {
     console.log("currentTurn: "+ currentTurn + "; playerIndex: "+ req.session.playerIndex)
     if(req.session.playerIndex === currentTurn){
         name = req.session.gameRoom.players[currentTurn].name
-        res.render("turn",{yourTurn:true,name:name,identity:identity})
+        res.render("turn",{yourTurn:true,name:name,identity:identity, VIP: req.session.VIP})
     } else {
         name = req.session.gameRoom.players[currentTurn].name
         identity = req.session.gameRoom.players[currentTurn].identity
-        res.render("turn",{yourTurn:false,name:name,identity:identity})
+        res.render("turn",{yourTurn:false,name:name,identity:identity, VIP: req.session.VIP})
     }
 })
 
@@ -193,6 +209,21 @@ app.post("/turn", (req,res) => {
     }
     pusher.trigger('my-channel', 'start-game', {isStarted:true})
     res.redirect("/turn")
+})
+
+app.post("/restart", (req,res) => {
+    if (req.session.VIP){
+        pusher.trigger('my-channel', 'restart', {roomCode:req.session.gameRoom.roomCode})
+        req.session.destroy()
+        res.redirect("/")
+    } else {
+        // console.log(req.session.gameRoom.roomCode)
+        // console.log(req.body.roomCode)
+        if (req.session.gameRoom.roomCode == req.body.roomCode){
+            req.session.destroy()
+            res.redirect("/")
+        }
+    }
 })
 
 app.listen(process.env.PORT, () => {

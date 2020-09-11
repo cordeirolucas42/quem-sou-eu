@@ -16,8 +16,15 @@
             });
 
             var channel = pusher.subscribe('my-channel');
+            channel.bind('new-assign', function(data) {
+                window.location.href = '/assign';
+            });
             channel.bind('start-game', function(data) {
                 window.location.href = '/turn';
+            });
+            channel.bind('restart', function(data) {
+                document.body.innerHTML += '<form id="restart" action="/restart" method="post"><input type="hidden" name="roomCode" value='+ data.roomCode +'></form>';
+                document.getElementById("restart").submit();
             });
         </script>
     </head>
@@ -45,7 +52,12 @@
                             <% } %>
                         <% } %>
                     </div>
-                    <a href="/assign" class="ui blue button">Jogar!</a>
+                    <!-- <a href="/assign" class="ui blue button">Jogar!</a> -->
+                    <%if(VIP){%>
+                        <form action="/restart" method="post" class="ui inline form">
+                            <button class="ui red button" type="submit">Reiniciar</button>
+                        </form>
+                    <%}%>
                 </div>
             </div>
         </div>

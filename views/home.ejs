@@ -20,13 +20,14 @@
                     <form action="/play" method="post" class="ui attached segment form">
                         <div class="field">
                             <label for="gameCode">Código da Sala</label>
-                            <input type="text" name="gameCode" placeholder="Código de 4 letras">
+                            <input type="text" name="gameCode" placeholder= <%= randomCode %> value= <%= randomCode %> >
                         </div>
                         <div class="field">
-                            <label for="gameCode">Nome</label>
+                            <label for="playerName">Nome</label>
                             <input type="text" name="playerName" placeholder="Seu nome">
                         </div>
-                        <button class="ui blue button" type="submit">Jogar!</button>
+                        <input class="ui blue button" type="submit" name="button" value="Acessar Sala">
+                        <input class="ui green button" type="submit" name="button" value="Criar Sala">
                     </form>
                 </div>
             </div>
