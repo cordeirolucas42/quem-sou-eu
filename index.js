@@ -4,8 +4,14 @@ const bodyParser = require("body-parser")
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const { strict } = require("assert")
+const Pusher = require('pusher');
 const app = express()
-// const port = 8000 //using heroku's enviromental variable
+var pusher = new Pusher ({
+    appId: process.env.app_id,
+    key: process.env.key,
+    secret: process.env.secret,
+    cluster: process.env.cluster
+})
 
 var justStarted = true
 var currentTurn = 0
@@ -73,6 +79,7 @@ app.post("/play",(req,res) => {
             el.players.push({name: playerName, identity: ""})
             req.session.gameRoom = el
             req.session.roomIndex = index
+            console.log("redirect to lobby page thorugh get/play")
             res.redirect("/play")
         } //ELSE TO DEAL WITH WRONG CODES AND GAMES ALREADY STARTED
     })
@@ -88,11 +95,8 @@ app.get("/play", (req,res) => {
         } else {
             var playerName = req.session.playerName
             var gameRoom = req.session.gameRoom
+            console.log("render lobby view")
             res.render("lobby",{playerName: playerName, gameRoom: gameRoom})
-            while (!req.session.gameRoom.isStarted){
-                req.session.gameRoom = gameRooms[req.session.roomIndex]
-            }
-            res.redirect("/start")
         }
     } else {
         res.redirect("/")
@@ -101,15 +105,15 @@ app.get("/play", (req,res) => {
 
 //comes from form button in lobby.js, should be in other page
 app.post("/start", (req,res) => {
-    // console.log(req.session)
     gameRooms[req.session.roomIndex].isStarted = true
+    pusher.trigger('my-channel', 'my-event', {isStarted:true})
     req.session.gameRoom = gameRooms[req.session.roomIndex]
     res.redirect("/start")
 })
 
 app.get("/start", (req,res) => {
-    // console.log(req.session)
     if (req.session.gameRoom){
+        req.session.gameRoom = gameRooms[req.session.roomIndex]
         if (req.session.gameRoom.isStarted){
             if (req.session.hasAssigned){
                 res.redirect("/assign")
