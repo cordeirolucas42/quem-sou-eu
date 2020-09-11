@@ -16,7 +16,7 @@
             });
 
             var channel = pusher.subscribe('my-channel');
-            channel.bind('my-event', function(data) {
+            channel.bind('start-assign', function(data) {
                 window.location.href = '/start';
             });
         </script>

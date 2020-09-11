@@ -3,6 +3,8 @@
     - https://agilewarrior.wordpress.com/2014/05/16/how-to-create-a-named-app-in-heroku/
     - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
     - tutorialspoint.com/expressjs/expressjs_sessions.htm
+    - https://hackernoon.com/how-to-build-twitters-real-time-likes-feature-with-node-js-and-pusher-fd8f97bee7cb
+    - https://dashboard.pusher.com/apps/1070985/getting_started
     - Semantic UI
         - https://cdnjs.com/libraries/semantic-ui
         - https://semantic-ui.com/usage/layout.html

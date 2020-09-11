@@ -106,7 +106,7 @@ app.get("/play", (req,res) => {
 //comes from form button in lobby.js, should be in other page
 app.post("/start", (req,res) => {
     gameRooms[req.session.roomIndex].isStarted = true
-    pusher.trigger('my-channel', 'my-event', {isStarted:true})
+    pusher.trigger('my-channel', 'start-assign', {isStarted:true})
     req.session.gameRoom = gameRooms[req.session.roomIndex]
     res.redirect("/start")
 })
@@ -159,6 +159,7 @@ app.get("/assign", (req,res) => {
             }
         }
         if (counter === 0){
+            pusher.trigger('my-channel', 'start-game', {isStarted:true})
             res.redirect("/turn")
         } else {
             res.render("waiting",{gameRoom: gameRoom})
@@ -169,7 +170,6 @@ app.get("/assign", (req,res) => {
 })
 
 app.get("/turn", (req,res) => {
-    // console.log(req.session)
     req.session.gameRoom = gameRooms[req.session.roomIndex]
     name = ""
     identity = ""
@@ -190,6 +190,7 @@ app.post("/turn", (req,res) => {
     } else {
         currentTurn += 1
     }
+    pusher.trigger('my-channel', 'start-game', {isStarted:true})
     res.redirect("/turn")
 })
 
