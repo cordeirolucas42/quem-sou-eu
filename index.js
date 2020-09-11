@@ -107,15 +107,19 @@ app.get("/start", (req,res) => {
     // console.log(req.session)
     if (req.session.gameRoom){
         if (req.session.gameRoom.isStarted){
-            if (!req.session.matchPlayer){
-                req.session.gameRoom = gameRooms[req.session.roomIndex]
-                var gameRoom = req.session.gameRoom
-    
-                if (req.session.matchIndex >= gameRoom.players.length) req.session.matchIndex = 0
-                var matchPlayer = gameRoom.players[req.session.matchIndex]
-                req.session.matchPlayer = matchPlayer
+            if (req.session.hasAssigned){
+                res.redirect("/assign")
+            } else {
+                if (!req.session.matchPlayer){
+                    req.session.gameRoom = gameRooms[req.session.roomIndex]
+                    var gameRoom = req.session.gameRoom
+        
+                    if (req.session.matchIndex >= gameRoom.players.length) req.session.matchIndex = 0
+                    var matchPlayer = gameRoom.players[req.session.matchIndex]
+                    req.session.matchPlayer = matchPlayer
+                }
+                res.render("assign",{matchPlayer: req.session.matchPlayer})
             }
-            res.render("assign",{matchPlayer: req.session.matchPlayer})
         } else {
             res.redirect("/play")
         }
