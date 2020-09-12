@@ -14,10 +14,12 @@
             var pusher = new Pusher('4dfc8e740701093d5b8e', {
             cluster: 'us2'
             });
-
             var channel = pusher.subscribe('my-channel');
             channel.bind('start-game', function(data) {
                 window.location.href = '/turn';
+            });
+            channel.bind('end-game', function(data) {
+                window.location.href = '/end';
             });
             channel.bind('restart', function(data) {
                 document.body.innerHTML += '<form id="restart" action="/restart" method="post"><input type="hidden" name="roomCode" value='+ data.roomCode +'></form>';
@@ -43,6 +45,11 @@
                     </div>
                     <% if(yourTurn){ %>
                         <form action="/turn" method="post" class="ui attached segment form">
+                            <div class="field">
+                                <label for="answer">Resposta</label>
+                                <input type="text" name="answer">
+                            </div>
+                            <button class="ui yellow button" type="submit">Conferir Resposta</button>
                             <button class="ui blue button" type="submit">Próximo!</button>
                         </form>
                     <% } %>

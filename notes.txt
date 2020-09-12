@@ -1,0 +1,10 @@
+req.session.playerName
+req.session.gameRoom
+    roomCode
+    isStarted
+    hasAssigned
+    players = [{name,identity}]
+req.session.roomIndex
+req.session.playerIndex
+req.session.matchIndex
+req.session.VIP

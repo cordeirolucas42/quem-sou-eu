@@ -14,7 +14,7 @@ var pusher = new Pusher ({
 })
 
 var justStarted = true
-var currentTurn = 0
+var counter = 0
 
 //THIS SHOULD BE SUBSTITUTED BY DATABASE
 gameRooms = []
@@ -22,8 +22,11 @@ class GameRoom {
     constructor(roomCode){
         this.roomCode = roomCode //randomize
         this.players = []
+        this.currentTurn = 0
+        this.answerList = []
         this.isStarted = false
         this.isAssigned = false
+        this.hasEnded = false
     }
 }
 
@@ -35,6 +38,10 @@ function MakeID(length) {
        result += characters.charAt(Math.floor(Math.random() * charactersLength))
     }
     return result;
+}
+
+function NextTurn(current,max) {
+    return current === max ? 0 : current + 1
 }
 
 //later need to add the functionality to create a new game room through /new-game page
@@ -92,7 +99,7 @@ app.post("/play",(req,res) => {
                 req.session.gameRoom = el
                 req.session.roomIndex = index
                 req.session.VIP = false
-                pusher.trigger('my-channel', 'new-player', {newPlayer:true})
+                pusher.trigger('my-channel', 'new-player', {"newPlayer":true})
                 console.log("access room and redirect to lobby")
                 res.redirect("/play")
             } //ELSE TO DEAL WITH WRONG CODES AND GAMES ALREADY STARTED
@@ -176,6 +183,7 @@ app.get("/assign", (req,res) => {
             }
         }
         if (counter === 0){
+            
             pusher.trigger('my-channel', 'start-game', {isStarted:true})
             res.redirect("/turn")
         } else {
@@ -190,25 +198,55 @@ app.get("/turn", (req,res) => {
     req.session.gameRoom = gameRooms[req.session.roomIndex]
     name = ""
     identity = ""
-    console.log("currentTurn: "+ currentTurn + "; playerIndex: "+ req.session.playerIndex)
-    if(req.session.playerIndex === currentTurn){
-        name = req.session.gameRoom.players[currentTurn].name
+    turn = gameRooms[req.session.roomIndex].currentTurn
+    // console.log("currentTurn: "+ turn + "; playerIndex: "+ req.session.playerIndex)
+    if(req.session.playerIndex === turn){
+        name = req.session.gameRoom.players[turn].name
         res.render("turn",{yourTurn:true,name:name,identity:identity, VIP: req.session.VIP})
     } else {
-        name = req.session.gameRoom.players[currentTurn].name
-        identity = req.session.gameRoom.players[currentTurn].identity
+        name = req.session.gameRoom.players[turn].name
+        identity = req.session.gameRoom.players[turn].identity
         res.render("turn",{yourTurn:false,name:name,identity:identity, VIP: req.session.VIP})
     }
 })
 
 app.post("/turn", (req,res) => {
-    if (currentTurn === req.session.gameRoom.players.length - 1){
-        currentTurn = 0
-    } else {
-        currentTurn += 1
+    req.session.gameRoom = gameRooms[req.session.roomIndex]
+    turn = gameRooms[req.session.roomIndex].currentTurn
+    answerList = req.session.gameRoom.answerList
+    if (req.body.answer === req.session.gameRoom.players[turn].identity){
+        answerList.push(req.session.playerIndex)
+        console.log("acertou!!!")
+        console.log(answerList)
     }
-    pusher.trigger('my-channel', 'start-game', {isStarted:true})
-    res.redirect("/turn")
+    count = 0
+    while (answerList.indexOf(NextTurn(turn,req.session.gameRoom.players.length - 1)) >= 0){
+        if (count === req.session.gameRoom.players.length - 1){
+            gameRooms[req.session.roomIndex].hasEnded = true
+            
+            break
+        }
+        count += 1
+        turn = NextTurn(turn,req.session.gameRoom.players.length - 1)
+    }
+    if (gameRooms[req.session.roomIndex].hasEnded){
+        pusher.trigger('my-channel', 'end-game', {end:true})
+        res.redirect("/end")
+    } else {
+        gameRooms[req.session.roomIndex].currentTurn = NextTurn(turn,req.session.gameRoom.players.length - 1)
+        pusher.trigger('my-channel', 'start-game', {isStarted:true})
+        res.redirect("/turn")
+    }
+    
+})
+
+app.get("/end", (req,res) => {
+    req.session.gameRoom = gameRooms[req.session.roomIndex]
+    if (req.session.gameRoom.hasEnded){
+        res.render("end")
+    } else {
+        res.redirect("/")
+    }
 })
 
 app.post("/restart", (req,res) => {
